@@ -1,0 +1,87 @@
+[Specialize]
+# DisableHiberfil
+cmd /c reg add HKLM\SYSTEM\CurrentControlSet\Control\Power /v HibernateEnabled /t REG_DWORD /d 00000000 /f
+
+# EnableAdmin
+cmd /c net user Administrator /active:yes
+
+# UnfilterAdministratorToken
+cmd /c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v FilterAdministratorToken /t REG_DWORD /d 0 /f
+
+# disable user account page
+cmd /c reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Setup\OOBE /v UnattendCreatedUser /t REG_DWORD /d 1 /f
+
+# disable async RunOnce
+cmd /c reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer /v AsyncRunOnce /t REG_DWORD /d 0 /f
+
+# DisableFirstAnim
+cmd /c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableFirstLogonAnimation /d 0 /t REG_DWORD /f
+
+# Disable DelayedTime
+cmd /c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v DelayedDesktopSwitchTimeout /d 0 /t REG_DWORD /f
+
+#DisableVoice
+cmd /c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE /v DisableVoice /t REG_DWORD /d 1 /f
+
+# ImportAppAssoc
+cmd /c Dism /Online /Import-DefaultAppAssociations:C:\Autocfg\AppAssoc-1803.xml
+
+# DisableCloudContent
+cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
+
+# DisableCortana
+cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
+
+# DisableOneDrive
+cmd /c reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
+
+# DisableDefaultUser0
+cmd /c net user defaultuser0 /active:no
+
+# RemoveApps
+powershell -executionpolicy bypass -file "%systemdrive%\Autocfg\RemoveApps-1803.ps1
+
+[oobeSystem]
+# ImportDefaultStartLayout
+powershell -command import-startlayout -layoutpath c:\autocfg\startlayout.xml -mountpath c:\
+
+# DisablePoepleBand
+cmd /c reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PEOPLEBAND /t REG_DWORD /d 0 /f
+
+# SetTaskbarSearchBox
+cmd /c reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f
+
+# W10-DefaultUserSettings
+cmd /c %systemdrive%\autocfg\w10-defaultusersettings.bat
+
+# TaskbarAppsLink
+%appdata%\Microsoft\Windows\Start Menu\Programs\Accessories\Internet Explorer.lnk
+%userprofile%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Accessories\Internet Explorer.lnk
+
+[W10-DefaultUserSettings]
+# MountDefaultUserProfilesReg
+cmd /c reg load HKU\Temp C:\Users\Default\ntuser.dat
+
+# DisablePoepleBand
+cmd /c reg add HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People /v PeopleBand /t REG_DWORD /d 0 /f
+
+# SetTaskbarSearchBox
+cmd /c reg add HKU\Temp\SOFTWARE\Microsoft\Windows\CurrentVersion\Search /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f
+
+# DisplayDesktopComputerIcon
+cmd /c reg add HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {20D04FE0-3AEA-1069-A2D8-08002B30309D} /t REG_DWORD /d 0 /f 
+
+# DisplayDesktopPersonalIcon
+cmd /c reg add HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {59031a47-3f72-44a7-89c5-5595fe6b30ee} /t REG_DWORD /d 0 /f 
+
+# DisplayDesktopNetworkIcon
+cmd /c reg add HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {{F02C1A0D-BE21-4350-88B0-7367FC96EF3C} /t REG_DWORD /d 0 /f 
+
+# DisplayDesktopControlPanelIcon
+cmd /c reg add HKU\Temp\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v {5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0} /t REG_DWORD /d 0 /f 
+
+# UnmountDefaultUserProfilesReg
+cmd /c reg unload HKU\Temp
+
+# SetPowerHigh
+powercfg.exe /s 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
