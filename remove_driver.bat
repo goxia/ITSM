@@ -1,0 +1,1 @@
+for /f %%a in ('dism /image:c:\mounttemp\windows /get-drivers /format:table ^|find "| ·ñ"') do (dism /image:c:\mounttemp\windows /remove-driver:%%a)
